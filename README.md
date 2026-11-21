@@ -8,6 +8,8 @@ Anecdote isn't a script and it isn't a story to memorize. It gives you a **menta
 
 **Try it: [anecdote4u.com](https://anecdote4u.com)** — it's friends-only for now, but the welcome page has a "curious what it looks like?" demo you can watch without a password, and a form to request one.
 
+<p align="center"><img src="images/anecdote-chat.png" alt="Anecdote chat: a topic about a son learning chess turns into tagged talking points" width="340"></p>
+
 ---
 
 ## How it works
