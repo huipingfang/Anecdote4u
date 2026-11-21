@@ -41,16 +41,7 @@ Not quite right? Tap **not quite — try again** for a genuinely different take,
 - Static pages (`site/`) on **Cloudflare Pages**, with no build step.
 - A single **Cloudflare Worker** (`site/_worker.js`) handles the AI calls (Anthropic's Claude Haiku), rate limiting, passwords, feedback and a small private stats page.
 - **Cloudflare KV** stores feedback, passwords and stats.
-
-## Run your own
-
-1. Create a Cloudflare Pages project from this repo: output directory `site`, no build command.
-2. Create a KV namespace, bind it as `FEEDBACK_KV`, and put its id in `wrangler.toml`.
-3. Add these secrets: `APP_PASSWORD`, `ANTHROPIC_API_KEY`, and your own prompts as `QUESTION_PROMPT`, `BEATS_PROMPT`, `ANGLES_PROMPT` and `REGENERATE_SUFFIX`.
-
-## About this repo
-
-This is the app's structure and code. The AI prompts that give Anecdote its voice are kept private, so it won't run as-is. All rights reserved.
+- The AI prompts that give Anecdote its voice are kept private (stored as secrets), so this repo shows the app's structure but isn't meant to be run as-is. All rights reserved.
 
 ---
 
