@@ -1,0 +1,498 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Anecdote</title>
+<style>
+:root{
+  --bg:#faf7f2; --card:#fff; --ink:#2b2621; --muted:#7a7168;
+  --accent:#c1622e; --line:#e8e0d5;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  padding:20px 16px 40px;
+  background:var(--bg);
+  min-height:100%;
+}
+.wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;min-height:calc(100vh - 60px)}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:1.6rem;margin:4px 0 2px;letter-spacing:.01em}
+h1 .dot{color:var(--accent)}
+.sub{color:var(--muted);font-size:.92rem;margin-bottom:18px}
+.bub{max-width:85%;padding:10px 14px;border-radius:16px;font-size:.95rem;line-height:1.45}
+.bub.bot{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}
+.bub.user{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px;font-weight:500}
+.beats{align-self:stretch;display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.beat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.beat .tag{display:inline-block;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);border:1px solid var(--accent);border-radius:20px;padding:2px 10px;margin-bottom:6px}
+.beat .txt{font-size:.95rem;line-height:1.45}
+button{background:var(--accent);color:#fff;border:none;border-radius:20px;
+  padding:11px 18px;font-size:.95rem;font-weight:600;cursor:pointer}
+button:disabled{opacity:.5}
+.hidden{display:none}
+/* request-a-password form */
+.reqform{display:flex;flex-direction:column;gap:8px;width:100%;max-width:320px;margin:10px 0 6px;text-align:left}
+.reqform input{width:100%;border:1px solid var(--line);border-radius:24px;padding:11px 18px;
+  font-size:.92rem;font-family:inherit;color:var(--ink);background:var(--card);outline:none}
+.reqform input:focus{border-color:var(--accent)}
+.reqform button[type=submit]{border:none;border-radius:24px;background:var(--accent);color:#fff;
+  font-weight:600;padding:11px 18px;cursor:pointer;font-family:inherit}
+.reqform button[disabled]{opacity:.6;cursor:default}
+.reqform .err{text-align:center;margin-top:2px}
+.reqform .ok{color:var(--muted)}
+/* password gate */
+.gate{margin:auto 0;display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 10px}
+.gate .lock{font-size:2rem;margin-bottom:12px}
+.gate h2{font-family:Georgia,"Times New Roman",serif;font-weight:400;margin:0 0 6px}
+.gate p{color:var(--muted);font-size:.9rem;margin:0 0 18px}
+.gate .intro{color:var(--ink);font-size:.93rem;line-height:1.6;max-width:340px;text-align:center;margin:0 0 20px}
+.gate .row{position:relative;width:100%;max-width:320px}
+.gate input{width:100%;border:1px solid var(--line);border-radius:24px;padding:12px 78px 12px 18px;
+  font-size:.95rem;background:var(--card);color:var(--ink);font-family:inherit;outline:none}
+.gate input:focus{border-color:var(--accent)}
+.gate .row button{position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  border-radius:18px;padding:8px 18px}
+.gate .err{color:#e07a5f;font-size:.85rem;min-height:1.4em;margin-top:10px}
+.demo-link{margin-top:6px;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}
+.demo-link .sep{color:var(--muted);font-size:.8rem}
+.how{margin-top:10px;width:100%;max-width:360px;max-height:44vh;overflow-y:auto;
+  border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--card);text-align:left}
+.how h4{margin:2px 0 8px;font-size:.95rem;font-weight:600}
+.how ol{margin:0;padding-left:20px;font-size:.85rem;line-height:1.55}
+.how ol>li{margin-bottom:8px}
+.how ul{list-style:none;padding-left:10px;margin:6px 0 2px}
+.how ul li{margin-bottom:4px}
+button.linklike{background:none;border:none;color:var(--accent);font-size:.88rem;
+  font-weight:600;cursor:pointer;padding:6px;text-decoration:underline;text-underline-offset:3px}
+.demo{margin-top:10px;width:100%;max-width:360px;max-height:44vh;overflow-y:auto;
+  border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--card);text-align:left}
+.demo .demo-note{color:var(--muted);font-size:.78rem;font-style:italic;text-align:center;margin:2px 0 10px}
+.demo .bub{font-size:.85rem;margin-bottom:8px}
+.demo .bub.bot{margin-right:auto}
+.demo .bub.user{margin-left:auto}
+.demo .beat{padding:9px 11px;margin-bottom:8px}
+.demo .beat .txt{font-size:.85rem}
+.demo .beat .why{font-size:.72rem;color:var(--muted);font-style:italic;margin:3px 0 5px}
+.demo .tag-why{font-size:.68rem;color:var(--muted);margin-left:6px}
+.demo .angles-head{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:8px 2px 2px;text-align:left}
+.demo .angle{font-size:.85rem;line-height:1.4;padding:7px 2px;border-top:1px dashed var(--line);text-align:left}
+.demo-tap{align-self:flex-start;border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:.8rem;color:var(--muted);background:var(--bg);margin:4px 0}
+.demo-tabs{display:flex;gap:6px;justify-content:center;margin:0 0 10px}
+.demo-tabs button{border:1px solid var(--line);background:var(--bg);color:var(--muted);
+  border-radius:14px;padding:5px 12px;font-size:.75rem;font-family:inherit;cursor:pointer}
+.demo-tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.demo-panel.hidden{display:none}
+.demo-stage{display:flex;flex-direction:column;gap:8px;min-height:120px}
+.demo-replay{text-align:center;margin-top:6px}
+.typing{align-self:flex-start;background:var(--card);border:1px solid var(--line);
+  border-radius:16px;border-bottom-left-radius:4px;padding:12px 16px;display:flex;gap:5px}
+.typing span{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:tblink 1s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes tblink{0%,100%{opacity:.25}50%{opacity:1}}
+.msg-in{animation:msgpop .3s ease-out}
+.beat-in{animation:msgpop .35s ease-out}
+@keyframes msgpop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.friends-row{display:flex;align-items:center;justify-content:center;gap:10px;margin:4px 0 14px}
+.friends-row .lock{font-size:1.5rem;margin:0}
+.friends-row h2{margin:0}
+.dev-banner{overflow:hidden;background:var(--card);border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);margin-bottom:14px}
+.dev-track{display:inline-flex;white-space:nowrap;animation:devscroll 16s linear infinite;padding:10px 0}
+.dev-track span{padding:0 2.5rem;font-size:.95rem;color:var(--ink)}
+@keyframes devscroll{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.dev-track{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="dev-banner" aria-hidden="true"><div class="dev-track"><span>come back often — this site is under active development.</span><span>come back often — this site is under active development.</span><span>come back often — this site is under active development.</span><span>come back often — this site is under active development.</span></div></div>
+  <h1>Anecdote<span class="dot">.</span></h1>
+  <div class="sub">you’re better at this than you think — you just need a head start.</div>
+
+  <div class="gate" id="gate">
+    <p class="intro">is "not much" your default answer when someone asks what you've been up to? the stories are in you, waiting to be shared, but the words don't come in time.<br><br>anecdote turns anything on your mind into a few natural talking points. no scripts, no rehearsing — just something real to reach for, so you can get started and let the rest... flow.</p>
+    <div class="friends-row"><span class="lock">🔑</span><h2>friends only</h2></div>
+    <div class="row">
+      <input type="password" id="pw_inp" placeholder="enter the password to come in" autocomplete="off" autocapitalize="off" autocorrect="off">
+      <button id="pw_go">Go</button>
+    </div>
+    <div class="err" id="pw_err"></div>
+    <button class="linklike" id="req_toggle">don't have a password? ask for one ↓</button>
+    <form class="reqform hidden" id="req_form" autocomplete="off">
+      <input type="text" id="req_name" placeholder="your name" maxlength="60" required>
+      <input type="text" id="req_contact" placeholder="email or how to reach you" maxlength="120" required>
+      <input type="text" id="req_note" placeholder="anything you'd like to add? (optional)" maxlength="300">
+      <input type="text" name="website" id="req_hp" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+      <button type="submit" id="req_go">request a password</button>
+      <div class="err" id="req_msg"></div>
+    </form>
+    <div class="demo-link">
+      <button class="linklike" id="how_toggle">how it works ↓</button>
+      <span class="sep">·</span>
+      <button class="linklike" id="demo_toggle">curious what it looks like? ↓</button>
+    </div>
+    <div class="how hidden" id="how">
+      <h4>how it works</h4>
+      <ol>
+        <li><b>input a topic</b> — type a brief summary of something you did or thought about recently (e.g. trying a new hobby or going on a trip).</li>
+        <li><b>follow-up</b> — one clarifying question to draw out the most interesting or vivid detail of your experience.</li>
+        <li><b>talking points</b> — your story broken into easy-to-remember parts:
+          <ul>
+            <li><b>hook</b> — a compelling opener to grab the listener's attention.</li>
+            <li><b>detail</b> — a concrete, vivid, or sensory element that makes the story memorable.</li>
+            <li><b>point / turn</b> — the ultimate takeaway, verdict, or an unexpected twist.</li>
+            <li><b>toss-back</b> — a natural question to hand the conversation back and keep it moving.</li>
+          </ul>
+        </li>
+        <li><b>more angles (optional)</b> — tap "more angles" for a few other perspectives on the same topic, in case you want another way in.</li>
+        <li><b>save the card</b> — keep the story in your library, so it's there when you need it.</li>
+        <li><b>not quite? try again</b> — get a fresh take on the same story, as many times as you like.</li>
+        <li><b>tell me what you think</b> — there's a "something missing? tell me what to fix" link at the bottom of the chat. every note comes straight to me.</li>
+      </ol>
+    </div>
+    <div class="demo hidden" id="demo">
+      <div class="demo-note">sample runs — they play on their own, with sound</div>
+      <div class="demo-tabs">
+        <button class="on" data-demo="d1">vibecoding</button>
+        <button data-demo="d2">firefly tour</button>
+      </div>
+      <div class="demo-panel" id="d1">
+        <div class="demo-stage" id="stage_d1"></div>
+        <div class="demo-replay"><button class="linklike hidden" id="replay_d1">replay &#8635;</button></div>
+      </div>
+      <div class="demo-panel hidden" id="d2">
+        <div class="demo-stage" id="stage_d2"></div>
+        <div class="demo-replay"><button class="linklike hidden" id="replay_d2">replay &#8635;</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PW_STORAGE = 'anecdote_pw';
+const pwInp = document.getElementById('pw_inp');
+const pwErr = document.getElementById('pw_err');
+const getPw = () => localStorage.getItem(PW_STORAGE) || '';
+
+// bounced back from the conversation page (wrong password)? say why
+const bounceMsg = sessionStorage.getItem('pw_err');
+if (bounceMsg){ pwErr.textContent = bounceMsg; sessionStorage.removeItem('pw_err'); }
+
+document.getElementById('pw_go').addEventListener('click', async () => {
+  const v = pwInp.value.trim();
+  if (!v){ pwErr.textContent = 'type the password first'; return; }
+  pwErr.textContent = 'checking…';
+  try {
+    const resp = await fetch('/verify', {
+      method: 'POST',
+      headers: {'content-type': 'application/json', 'x-app-password': v}
+    });
+    if (resp.status === 429){
+      pwErr.textContent = 'whoa, slow down a little — try again in a bit.';
+      return;
+    }
+    if (!resp.ok){
+      pwErr.textContent = "hmm, that password didn't work — try again?";
+      return;
+    }
+  } catch(e){
+    pwErr.textContent = "couldn't reach the server — check your connection and try again?";
+    return;
+  }
+  localStorage.setItem(PW_STORAGE, v);
+  pwErr.textContent = '';
+  location.href = 'chat.html';
+});
+document.getElementById('req_toggle').addEventListener('click', () => {
+  const f = document.getElementById('req_form');
+  f.classList.toggle('hidden');
+  if (!f.classList.contains('hidden')) document.getElementById('req_name').focus();
+});
+document.getElementById('req_form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const msg = document.getElementById('req_msg');
+  const btn = document.getElementById('req_go');
+  msg.className = 'err'; msg.textContent = 'sending…'; btn.disabled = true;
+  try {
+    const resp = await fetch('/request-access', {
+      method: 'POST',
+      headers: {'content-type': 'application/json'},
+      body: JSON.stringify({
+        name: document.getElementById('req_name').value,
+        contact: document.getElementById('req_contact').value,
+        note: document.getElementById('req_note').value,
+        website: document.getElementById('req_hp').value
+      })
+    });
+    let data = {};
+    try { data = await resp.json(); } catch (_) {}
+    if (!resp.ok){ msg.textContent = data.error || "couldn't send that — try again?"; btn.disabled = false; return; }
+    msg.className = 'err ok';
+    msg.textContent = "got it — you'll hear back with a password soon.";
+    document.getElementById('req_form').querySelectorAll('input').forEach(i => i.disabled = true);
+  } catch (_) {
+    msg.textContent = "couldn't reach the server — check your connection?";
+    btn.disabled = false;
+  }
+});
+
+pwInp.addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ e.preventDefault(); document.getElementById('pw_go').click(); }
+});
+
+const demoToggle = document.getElementById('demo_toggle');
+const demo = document.getElementById('demo');
+const howToggle = document.getElementById('how_toggle');
+const how = document.getElementById('how');
+function setPanel(panel, toggle, label, show){
+  panel.classList.toggle('hidden', !show);
+  toggle.textContent = show ? 'hide ↑' : label + ' ↓';
+}
+demoToggle.addEventListener('click', () => {
+  const show = demo.classList.contains('hidden');
+  setPanel(demo, demoToggle, 'curious what it looks like?', show);
+  setPanel(how, howToggle, 'how it works', false);
+  if (show) playDemo(document.querySelector('.demo-tabs button.on').dataset.demo);
+  else demoPlayId++; // stop any running playback
+});
+howToggle.addEventListener('click', () => {
+  const show = how.classList.contains('hidden');
+  setPanel(how, howToggle, 'how it works', show);
+  setPanel(demo, demoToggle, 'curious what it looks like?', false);
+});
+// video-style demo player — scripted like a screen recording, with sound
+let demoAC = null;
+function demoAc(){
+  if (!demoAC) demoAC = new (window.AudioContext || window.webkitAudioContext)();
+  if (demoAC.state === 'suspended') demoAC.resume();
+  return demoAC;
+}
+function demoTone(f, t, dur, peak){
+  const ctx = demoAc(), o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = 'triangle';
+  o.frequency.setValueAtTime(f, t);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(peak, t + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(t); o.stop(t + dur + 0.03);
+}
+function demoBloop(){
+  try {
+    const ctx = demoAc(), t = ctx.currentTime;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(800, t);
+    o.frequency.exponentialRampToValueAtTime(500, t + 0.09);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.5, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t + 0.18);
+  } catch(e){}
+}
+function demoFanfare(){
+  try {
+    const t = demoAc().currentTime;
+    demoTone(523.25, t, 0.2, 0.3);
+    demoTone(659.25, t + 0.08, 0.2, 0.3);
+    demoTone(783.99, t + 0.16, 0.2, 0.3);
+    demoTone(1046.5, t + 0.24, 0.24, 0.3);
+  } catch(e){}
+}
+const DEMOS = {
+  d1: [
+    {t:'msg', from:'bot', text:'Hello — what topic are you thinking about?'},
+    {t:'msg', from:'user', text:'I tried vibecoding for the first time'},
+    {t:'typing'},
+    {t:'msg', from:'bot', text:'What made you try it, and did it actually click for you?'},
+    {t:'msg', from:'user', text:'Yes it did. I had this idea and I just described to AI and it built the prototype for me instantly'},
+    {t:'typing'},
+    {t:'msg', from:'bot', text:'Got it — here are your talking points:'},
+    {t:'beats', beats:[
+      ['hook', 'So I just described an idea to AI and it literally built me a prototype on the spot.'],
+      ['detail', "Like, I didn't have to write a single line of code myself—just talked through what I wanted."],
+      ['point', "It's wild how fast you can go from thinking something up to actually having it work."],
+      ['toss-back', 'Have you ever tried letting AI do that kind of thing for you?']
+    ]},
+    {t:'angles', angles:[
+      'you can also talk about why you started building it instead of just downloading something',
+      'you can also talk about who you were actually building it for',
+      'you can also talk about what surprised you most about how fast it came together'
+    ]}
+  ],
+  d2: [
+    {t:'msg', from:'bot', text:'Hello — what topic are you thinking about?'},
+    {t:'msg', from:'user', text:'i went to a guided firefly walking tour'},
+    {t:'typing'},
+    {t:'msg', from:'bot', text:'did you actually see a bunch light up, or was it more of a search-and-spot kind of thing?'},
+    {t:'msg', from:'user', text:'we saw a lot! my 6yo even caught one with his hands'},
+    {t:'typing'},
+    {t:'msg', from:'bot', text:'got it — here are your talking points:'},
+    {t:'beats', beats:[
+      ['hook', "so we went on a guided firefly walk — turns out that's a thing you can do."],
+      ['detail', 'my six-year-old caught one with his bare hands — and it kept glowing, like holding a tiny living lightbulb.'],
+      ['turn', "i didn't know what to expect — then a whole patch of them lit up at once."],
+      ['toss-back', 'have you ever been to one of those tours, or seen fireflies up close?']
+    ]},
+    {t:'angles', angles:[
+      'you can also talk about whether your kid is still talking about the one he caught',
+      'you can also talk about what the guide said about why they flash in sync',
+      "you can also talk about whether you'd go again — and who you'd take"
+    ]}
+  ]
+};
+let demoPlayId = 0;
+const demoWait = ms => new Promise(r => setTimeout(r, ms));
+function demoBubble(from, text){
+  const d = document.createElement('div');
+  d.className = 'bub ' + from + ' msg-in';
+  d.textContent = text;
+  return d;
+}
+function demoTyping(){
+  const d = document.createElement('div');
+  d.className = 'typing';
+  d.innerHTML = '<span></span><span></span><span></span>';
+  return d;
+}
+const DEMO_TAG_WHY = {
+  'hook': 'your opener',
+  'detail': 'the vivid bit',
+  'turn': 'the twist',
+  'point': 'your takeaway',
+  'toss-back': 'hand it back'
+};
+function demoBeat(tag, text){
+  const d = document.createElement('div');
+  d.className = 'beat beat-in';
+  const s = document.createElement('span'); s.className = 'tag'; s.textContent = tag;
+  const x = document.createElement('div'); x.className = 'txt'; x.textContent = text;
+  d.appendChild(s);
+  const why = DEMO_TAG_WHY[tag];
+  if (why){
+    const w = document.createElement('span');
+    w.className = 'tag-why'; w.textContent = why;
+    d.appendChild(w);
+  }
+  d.appendChild(x);
+  return d;
+}
+function demoAnglesHead(){
+  const d = document.createElement('div');
+  d.className = 'angles-head';
+  d.textContent = 'other angles';
+  return d;
+}
+function demoAngle(text){
+  const d = document.createElement('div');
+  d.className = 'angle';
+  d.textContent = text;
+  return d;
+}
+async function playDemo(id){
+  const my = ++demoPlayId;
+  const stage = document.getElementById('stage_' + id);
+  const replay = document.getElementById('replay_' + id);
+  stage.innerHTML = '';
+  replay.classList.add('hidden');
+  try { await demoAc().resume(); } catch(e){}
+  const alive = () => my === demoPlayId && !demo.classList.contains('hidden');
+  await demoWait(700);
+  for (const s of DEMOS[id]){
+    if (!alive()) return;
+    if (s.t === 'msg'){
+      await demoWait(s.from === 'user' ? 1600 : 900);
+      if (!alive()) return;
+      stage.appendChild(demoBubble(s.from, s.text));
+      demoBloop();
+    } else if (s.t === 'typing'){
+      const tp = demoTyping();
+      stage.appendChild(tp);
+      await demoWait(1700);
+      if (!alive()) return;
+      tp.remove();
+    } else if (s.t === 'beats'){
+      await demoWait(1100);
+      if (!alive()) return;
+      s.beats.forEach(b => {
+        stage.appendChild(demoBeat(b[0], b[1]));
+      });
+      demoFanfare();
+    } else if (s.t === 'angles'){
+      await demoWait(900);
+      if (!alive()) return;
+      const tap = document.createElement('div');
+      tap.className = 'demo-tap';
+      tap.textContent = 'more angles';
+      stage.appendChild(tap);
+      demo.scrollTop = demo.scrollHeight;
+      await demoWait(1200);
+      if (!alive()) return;
+      tap.remove();
+      stage.appendChild(demoAnglesHead());
+      s.angles.forEach(a => stage.appendChild(demoAngle(a)));
+      demoBloop();
+    }
+    demo.scrollTop = demo.scrollHeight;
+  }
+  await demoWait(900);
+  if (!alive()) return;
+  replay.classList.remove('hidden');
+}
+document.querySelectorAll('.demo-tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.demo-tabs button').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    document.querySelectorAll('.demo-panel').forEach(p => p.classList.add('hidden'));
+    document.getElementById(btn.dataset.demo).classList.remove('hidden');
+    playDemo(btn.dataset.demo);
+  });
+});
+['d1', 'd2'].forEach(id => {
+  document.getElementById('replay_' + id).addEventListener('click', () => playDemo(id));
+});
+
+// returning friend with a saved password? straight to the conversation
+if (getPw()) location.href = 'chat.html';
+else pwInp.focus();
+</script>
+<script>
+// first-party visit stats: one pageview ping per load, plus a visible-seconds
+// heartbeat every minute while the tab is in front. no cookies, no third
+// parties, IPs stored as one-way hashes. honors the "don't count this device"
+// switch (localStorage anecdote_dnt) and the browser Do Not Track setting.
+(function(){
+  try {
+    if (localStorage.getItem('anecdote_dnt') === '1') return;
+    if (navigator.doNotTrack === '1') return;
+    var page = location.pathname.replace(/\/$/, '') || '/';
+    var post = function(payload){
+      fetch('/ping', {method:'POST', headers:{'content-type':'application/json'},
+        body: JSON.stringify(payload)}).catch(function(){});
+    };
+    post({t:'pv', page: page});
+    var acc = 0, last = Date.now();
+    setInterval(function(){
+      var now = Date.now();
+      if (document.hidden) { last = now; return; }
+      acc += Math.round((now - last) / 1000); last = now;
+      if (acc >= 60) { var s = acc; acc = 0; post({t:'hb', page: page, secs: s}); }
+    }, 15000);
+    window.addEventListener('beforeunload', function(){
+      if (acc > 5 && navigator.sendBeacon) {
+        try { navigator.sendBeacon('/ping', JSON.stringify({t:'hb', page: page, secs: acc})); } catch(e){}
+      }
+    });
+  } catch(e){}
+})();
+</script>
+</body>
+</html>

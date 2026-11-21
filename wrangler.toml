@@ -1,0 +1,14 @@
+# Cloudflare Pages configuration for the anecdote4u project (git-connected).
+# The dashboard manages this project's bindings through this file, so the
+# feedback inbox's KV namespace is declared here rather than in the dashboard.
+# NOTE: Pages ignores this file entirely unless it contains
+# pages_build_output_dir (the build log says so verbatim), and its config
+# validation additionally requires a top-level `name` matching the project.
+# Both properties must stay in sync with the dashboard settings.
+
+name = "anecdote4u"
+pages_build_output_dir = "site"
+
+[[kv_namespaces]]
+binding = "FEEDBACK_KV"
+id = "YOUR_KV_NAMESPACE_ID"

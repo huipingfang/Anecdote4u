@@ -1,0 +1,823 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Anecdote</title>
+<style>
+:root{
+  --bg:#faf7f2; --card:#fff; --ink:#2b2621; --muted:#7a7168;
+  --accent:#c1622e; --line:#e8e0d5;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  padding:20px 16px 40px;
+  background:var(--bg);
+  min-height:100%;
+}
+.wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;min-height:calc(100vh - 60px)}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:1.6rem;margin:4px 0 2px;letter-spacing:.01em}
+h1 .dot{color:var(--accent)}
+.sub{color:var(--muted);font-size:.92rem;margin-bottom:18px}
+.chat{display:flex;flex-direction:column;gap:8px;flex:1;margin-bottom:12px}
+.bub{max-width:85%;padding:10px 14px;border-radius:16px;font-size:.95rem;line-height:1.45}
+.bub.bot{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}
+.bub.user{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px;font-weight:500}
+.bub.typing{color:var(--muted);letter-spacing:2px}
+.beats{align-self:stretch;display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.beat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.beat .tag{display:inline-block;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);border:1px solid var(--accent);border-radius:20px;padding:2px 10px;margin-bottom:6px}
+.beat .tag-why{font-size:.72rem;color:var(--muted);margin-left:6px}
+.beat .txt{font-size:.95rem;line-height:1.45}
+.angles-head{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 2px 4px}
+.angle{font-size:.92rem;line-height:1.45;padding:9px 2px;border-top:1px dashed var(--line)}
+.bar{display:flex;gap:8px}
+.bar input{flex:1;border:1px solid var(--line);border-radius:20px;padding:11px 14px;
+  font-size:.95rem;background:var(--card);color:var(--ink);font-family:inherit;outline:none}
+.bar input:focus{border-color:var(--accent)}
+button{background:var(--accent);color:#fff;border:none;border-radius:20px;
+  padding:11px 18px;font-size:.95rem;font-weight:600;cursor:pointer}
+button:disabled{opacity:.5}
+button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.restart{align-self:center;margin-top:14px}
+.status{color:var(--muted);font-size:.88rem;font-style:italic;text-align:center;padding:8px}
+.hidden{display:none}
+.headrow{display:flex;align-items:center;justify-content:space-between}
+.dev-banner{overflow:hidden;background:var(--card);border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);margin-bottom:14px}
+.dev-track{display:inline-flex;white-space:nowrap;animation:devscroll 16s linear infinite;padding:10px 0}
+.dev-track span{padding:0 2.5rem;font-size:.95rem;color:var(--ink)}
+@keyframes devscroll{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.dev-track{animation:none}}
+.headbtns{display:flex;align-items:center;gap:4px}
+.textbtn{background:none;border:none;color:var(--muted);font-size:.85rem;font-weight:600;
+  cursor:pointer;padding:4px 6px;text-decoration:underline;text-underline-offset:3px}
+.beat-actions{display:flex;gap:8px;margin-top:10px;align-self:stretch}
+.library:not(.hidden){display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.lib-search{width:100%;border:1px solid var(--line);border-radius:20px;padding:10px 14px;
+  font-size:.95rem;font-family:inherit;color:var(--ink);background:var(--bg);outline:none}
+.lib-search:focus{border-color:var(--accent)}
+.lib-count{color:var(--muted);font-size:.78rem;margin-top:-4px}
+mark{background:var(--accent);color:var(--card);border-radius:3px;padding:0 2px}
+.saved-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.saved-head{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.saved-head strong{flex:1;font-size:.9rem}
+.saved-date{color:var(--muted);font-size:.78rem;white-space:nowrap}
+button.small{padding:6px 12px;font-size:.8rem}
+.ready_wrap{display:flex;justify-content:center;padding:36px 0}
+.ready_wrap button{font-size:1.05rem;padding:14px 36px}
+.fblink{align-self:center;margin-top:14px}
+.fbform{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
+.fbform textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:12px;
+  padding:11px 14px;font-size:.95rem;font-family:inherit;color:var(--ink);
+  background:var(--bg);outline:none;resize:vertical}
+.fbform textarea:focus{border-color:var(--accent)}
+.fbrow{display:flex;justify-content:flex-end;margin-top:10px}
+#fb_send{padding:10px 20px;font-size:.9rem}
+#fb_ok{margin-top:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="dev-banner" aria-hidden="true"><div class="dev-track"><span>come back often — this site is under active development.</span><span>come back often — this site is under active development.</span><span>come back often — this site is under active development.</span><span>come back often — this site is under active development.</span></div></div>
+  <div class="headrow">
+    <h1>Anecdote<span class="dot">.</span></h1>
+    <div class="headbtns">
+      <button id="cards_toggle" class="textbtn">story cards (<span id="cards_count">0</span>)</button>
+    </div>
+  </div>
+  <div class="sub">you’re better at this than you think — you just need a head start.</div>
+
+  <div class="chat" id="chat"></div>
+  <div id="library" class="library hidden"></div>
+
+  <div class="bar hidden" id="bar">
+    <input id="inp" placeholder="a topic, a thing you did, whatever's on your mind…" autocomplete="off">
+    <button class="ghost hidden" id="skip">Skip</button>
+    <button id="send">Send</button>
+  </div>
+  <button class="ghost restart hidden" id="restart">Start over</button>
+  <button class="textbtn fblink" id="fb_link">something missing? tell me what to fix</button>
+  <div id="fb_form" class="fbform hidden">
+    <textarea id="fb_text" placeholder="be honest — what's broken, confusing, or missing?"></textarea>
+    <div class="fbrow"><button id="fb_send">send feedback</button></div>
+  </div>
+  <div id="fb_ok" class="status hidden">thanks, i read every one ✓</div>
+</div>
+
+<script>
+const PW_STORAGE = 'anecdote_pw';
+// no saved password? back to the welcome page
+if (!localStorage.getItem(PW_STORAGE)) location.href = 'index.html';
+
+const chat = document.getElementById('chat');
+const bar = document.getElementById('bar');
+const inp = document.getElementById('inp');
+const sendBtn = document.getElementById('send');
+const skipBtn = document.getElementById('skip');
+const restartBtn = document.getElementById('restart');
+
+let stage = 'ask-what'; // ask-what -> ask-detail -> beats
+let readyTapped = false; // the input bar stays hidden until the ready button is tapped
+let what = '';
+let lastAnswer = '';
+let lastBeats = null;
+let beatsWrap = null; // the latest beats block, so on-demand angles land on the current set
+
+const getPw = () => localStorage.getItem(PW_STORAGE) || '';
+
+function scrollDown(){ window.scrollTo(0, document.body.scrollHeight); }
+
+// tiny synthesized sound effects — no audio files, works offline
+let sfxCtx = null;
+function sfxAc(){
+  if (!sfxCtx) sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (sfxCtx.state === 'suspended') sfxCtx.resume();
+  return sfxCtx;
+}
+// browsers only allow audio after a user gesture — unlock on the first tap/keypress
+['pointerdown', 'keydown'].forEach(ev =>
+  window.addEventListener(ev, () => { try { sfxAc(); } catch(e){} }, { once:true }));
+function sfxPop(){
+  // message bloop — bright triangle slide down, sits where phone speakers sing
+  try {
+    const ctx = sfxAc(), t = ctx.currentTime;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(800, t);
+    o.frequency.exponentialRampToValueAtTime(500, t + 0.09);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.5, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t + 0.18);
+  } catch(e){}
+}
+function sfxTone(f, t, dur, peak){
+  const ctx = sfxAc();
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = 'triangle';
+  o.frequency.setValueAtTime(f, t);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(peak, t + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(t); o.stop(t + dur + 0.03);
+}
+function sfxFanfare(){
+  // talking points have landed — 4-note ascending arpeggio
+  try {
+    const t = sfxAc().currentTime;
+    sfxTone(523.25, t, 0.2, 0.3);
+    sfxTone(659.25, t + 0.08, 0.2, 0.3);
+    sfxTone(783.99, t + 0.16, 0.2, 0.3);
+    sfxTone(1046.5, t + 0.24, 0.24, 0.3);
+  } catch(e){}
+}
+function sfxGrandFinale(){
+  // story card saved — six-note climb into a bright held chord
+  try {
+    const t = sfxAc().currentTime;
+    [523.25, 659.25, 783.99, 1046.5, 1318.5, 1568.0].forEach((f, i) =>
+      sfxTone(f, t + i * 0.07, 0.16, 0.28));
+    const tc = t + 6 * 0.07 + 0.02;
+    [1046.5, 1318.5, 1568.0].forEach(f => sfxTone(f, tc, 0.55, 0.18));
+  } catch(e){}
+}
+// little canvas firework burst — no libraries, cleaned up after itself
+function fwBurst(x, y, n, spread){
+  const c = document.createElement('canvas');
+  c.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999';
+  document.body.appendChild(c);
+  const ctx = c.getContext('2d');
+  c.width = window.innerWidth; c.height = window.innerHeight;
+  const colors = ['#f4c95d', '#e07a5f', '#81b29a', '#f2cc8f', '#f4a261', '#e9c46a'];
+  const parts = [];
+  for (let i = 0; i < n; i++){
+    const a = Math.random() * Math.PI * 2, sp = spread * (0.4 + Math.random() * 0.8);
+    parts.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1,
+      life: 1, decay: 0.008 + Math.random() * 0.012,
+      size: 1.5 + Math.random() * 2.5, color: colors[(Math.random() * colors.length) | 0] });
+  }
+  (function tick(){
+    ctx.clearRect(0, 0, c.width, c.height);
+    let alive = false;
+    for (const p of parts){
+      p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.vx *= 0.99; p.life -= p.decay;
+      if (p.life > 0){
+        alive = true;
+        ctx.globalAlpha = Math.max(p.life, 0);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+      }
+    }
+    ctx.globalAlpha = 1;
+    if (alive) requestAnimationFrame(tick);
+    else c.remove();
+  })();
+}
+function fireworks(x, y){
+  fwBurst(x, y, 55, 4.5);
+  setTimeout(() => fwBurst(x - 40 + Math.random() * 80, y - 60, 30, 3.5), 180);
+  setTimeout(() => fwBurst(x - 40 + Math.random() * 80, y - 45, 30, 3.5), 360);
+}
+
+function addMsg(from, text, cls){
+  const d = document.createElement('div');
+  d.className = 'bub ' + from + (cls ? ' ' + cls : '');
+  d.textContent = text;
+  chat.appendChild(d);
+  sfxPop();
+  scrollDown();
+}
+
+function addTyping(){
+  const d = document.createElement('div');
+  d.className = 'bub bot typing';
+  d.textContent = '•••';
+  d.id = 'typing';
+  chat.appendChild(d);
+  scrollDown();
+}
+function removeTyping(){
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+// A little explanation next to each beat's tag, for people who skip
+// the how-it-works page.
+const TAG_WHY = {
+  'hook': 'your opener',
+  'detail': 'the vivid bit',
+  'turn': 'the twist',
+  'point': 'your takeaway',
+  'toss-back': 'hand it back'
+};
+function appendTag(parent, tagText){
+  const tag = document.createElement('span');
+  tag.className = 'tag';
+  tag.textContent = tagText;
+  parent.appendChild(tag);
+  const why = TAG_WHY[tagText];
+  if (why){
+    const w = document.createElement('span');
+    w.className = 'tag-why';
+    w.textContent = why;
+    parent.appendChild(w);
+  }
+}
+
+function addBeats(beats){
+  const wrap = document.createElement('div');
+  wrap.className = 'beats';
+  wrap.id = 'beats_wrap';
+  beatsWrap = wrap;
+  beats.filter(b => b.tag !== 'angle').forEach(b => {
+    const d = document.createElement('div');
+    d.className = 'beat';
+    appendTag(d, b.tag);
+    const txt = document.createElement('div');
+    txt.className = 'txt';
+    txt.textContent = b.text;
+    d.appendChild(txt);
+    wrap.appendChild(d);
+  });
+  const angles = beats.filter(b => b.tag === 'angle');
+  if (angles.length){
+    const h = document.createElement('div');
+    h.className = 'angles-head';
+    h.textContent = 'other angles';
+    wrap.appendChild(h);
+    angles.forEach(a => {
+      const d = document.createElement('div');
+      d.className = 'angle';
+      d.textContent = a.text;
+      wrap.appendChild(d);
+    });
+  }
+  chat.appendChild(wrap);
+  sfxFanfare();
+  scrollDown();
+}
+
+// On-demand third step: angles only arrive when the user asks for them.
+function addAngles(angles){
+  if (!beatsWrap) return;
+  const h = document.createElement('div');
+  h.className = 'angles-head';
+  h.textContent = 'other angles';
+  beatsWrap.appendChild(h);
+  angles.forEach(a => {
+    const d = document.createElement('div');
+    d.className = 'angle';
+    d.textContent = a.text;
+    beatsWrap.appendChild(d);
+  });
+  scrollDown();
+}
+
+async function fetchAngles(btn){
+  btn.disabled = true;
+  btn.textContent = 'getting angles…';
+  const t0 = Date.now();
+  try {
+    const resp = await post({action: 'angles', what, answer: lastAnswer});
+    // The angles endpoint only returns angles, so accept any item with text —
+    // the model doesn't always keep the "angle" tag we asked for.
+    const list = Array.isArray(resp) ? resp : (resp && Array.isArray(resp.angles) ? resp.angles : []);
+    const onlyAngles = list
+      .map(a => ({ tag: 'angle', text: (typeof a === 'string' ? a : (a && a.text)) || '' }))
+      .map(a => ({ tag: 'angle', text: a.text.trim() }))
+      .filter(a => a.text);
+    if (onlyAngles.length){
+      addAngles(onlyAngles);
+      // Keep saved story cards complete.
+      lastBeats = (lastBeats || []).concat(onlyAngles);
+      btn.remove();
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'more angles';
+      addStatus("Hmm, no angles came back — try again?");
+    }
+  } catch(e){
+    if (e.message === 'auth') return;
+    reportClientError('angles', e, Date.now() - t0);
+    btn.disabled = false;
+    btn.textContent = 'more angles';
+    addStatus(e.message === 'slow'
+      ? "Whoa, slow down a little — try again in a bit."
+      : "Something went wrong getting angles. Try again?");
+  }
+}
+
+function addStatus(text){
+  const d = document.createElement('div');
+  d.className = 'status';
+  d.textContent = text;
+  chat.appendChild(d);
+  scrollDown();
+}
+
+function setStage(s){
+  stage = s;
+  if (s === 'ask-what'){
+    if (readyTapped) bar.classList.remove('hidden');
+    inp.placeholder = "a topic, a thing you did, whatever's on your mind…";
+    skipBtn.classList.add('hidden');
+    restartBtn.classList.add('hidden');
+  } else if (s === 'ask-detail'){
+    if (readyTapped) bar.classList.remove('hidden');
+    inp.placeholder = 'Answer, or skip';
+    skipBtn.classList.remove('hidden');
+    restartBtn.classList.add('hidden');
+  } else {
+    bar.classList.add('hidden');
+    restartBtn.classList.remove('hidden');
+  }
+}
+
+function enterApp(){
+  setStage('ask-what');
+  // openers: one picked at random each time the chat (re)starts
+  const OPENERS = [
+    'Hello — what topic are you thinking about?',
+    "Hello — what's on your mind?",
+    'Hello — did anything happen lately worth talking about?',
+    'Hello — got something on your mind today?',
+    'Hello — what have you been up to?'
+  ];
+  const pickOpener = () => OPENERS[Math.floor(Math.random() * OPENERS.length)];
+
+  // a "ready" tap unlocks audio (browser policy) and summons the greeting with its sound
+  const w = document.createElement('div');
+  w.className = 'ready_wrap';
+  w.innerHTML = '<button id="ready_btn">ready</button>';
+  chat.appendChild(w);
+  scrollDown();
+  document.getElementById('ready_btn').addEventListener('click', async () => {
+    w.remove();
+    readyTapped = true;
+    setStage(stage);
+    try { await sfxAc().resume(); } catch(e){}
+    setTimeout(() => {
+      addMsg('bot', pickOpener(), 'greet');
+      inp.focus();
+    }, 400);
+  });
+}
+
+function lockApp(msg){
+  localStorage.removeItem(PW_STORAGE);
+  sessionStorage.setItem('pw_err', msg || '');
+  location.href = 'index.html';
+}
+
+async function post(body){
+  var headers = {'content-type': 'application/json', 'x-app-password': getPw()};
+  // "don't count this device" switch: the backend skips stats for this call
+  try { if (localStorage.getItem('anecdote_dnt') === '1') headers['x-dnt'] = '1'; } catch(e){}
+  const resp = await fetch('/generate', {
+    method: 'POST',
+    headers: headers,
+    body: JSON.stringify(body)
+  });
+  if (resp.status === 401){ lockApp("hmm, that password didn't work — try again?"); throw new Error('auth'); }
+  if (resp.status === 429) throw new Error('slow');
+  if (!resp.ok) throw new Error('bad ' + resp.status);
+  return resp.json();
+}
+
+function validBeats(b){
+  return Array.isArray(b) && b.length > 0 &&
+    b.every(x => x && typeof x.tag === 'string' && typeof x.text === 'string');
+}
+
+// Flight recorder: when a generation fails on the app's side (network drop,
+// bad status, unparseable response), tell the server what happened. The
+// server never sees these, so without this we'd be guessing. Fire-and-forget.
+function reportClientError(step, err, ms){
+  try {
+    var kind = String((err && err.message) || err || '?').slice(0, 60);
+    fetch('/client-error', {
+      method: 'POST',
+      headers: {'content-type': 'application/json', 'x-app-password': getPw()},
+      body: JSON.stringify({ step: step, kind: kind, ms: Math.round(ms) })
+    }).catch(function(){});
+  } catch(e){}
+}
+
+async function sendWhat(text){
+  text = text.trim();
+  if (!text) return;
+  what = text;
+  addMsg('user', text);
+  inp.value = '';
+  addTyping();
+  const t0 = Date.now();
+  try {
+    const data = await post({action: 'question', what});
+    removeTyping();
+    if (data.question){
+      addMsg('bot', data.question);
+      setStage('ask-detail');
+      inp.focus();
+    } else {
+      addStatus("Couldn't think of a question — tap skip to get your talking points.");
+      setStage('ask-detail');
+    }
+  } catch(e){
+    removeTyping();
+    if (e.message === 'auth') return;
+    reportClientError('question', e, Date.now() - t0);
+    addStatus(e.message === 'slow'
+      ? "Whoa, slow down a little — try again in a bit."
+      : "Something went wrong. Check your connection and try again?");
+  }
+}
+
+async function sendAnswer(answerOrNull){
+  const answer = answerOrNull === null ? '' : answerOrNull.trim();
+  if (answerOrNull !== null && !answer) return;
+  lastAnswer = answer;
+  addMsg('user', answerOrNull === null ? '(skipped)' : answer);
+  inp.value = '';
+  addTyping();
+  const t0 = Date.now();
+  try {
+    const beats = await post({action: 'beats', what, answer});
+    removeTyping();
+    if (validBeats(beats)){
+      lastBeats = beats;
+      addMsg('bot', "Got it — here are your talking points:");
+      addBeats(beats);
+      addBeatActions();
+      setStage('beats');
+    } else {
+      addStatus("Couldn't parse that — try adding a bit more detail.");
+      setStage('ask-detail');
+    }
+  } catch(e){
+    removeTyping();
+    if (e.message === 'auth') return;
+    reportClientError('beats', e, Date.now() - t0);
+    addStatus(e.message === 'slow'
+      ? "Whoa, slow down a little — try again in a bit."
+      : "Something went wrong generating that. Try again?");
+    setStage('ask-detail');
+  }
+}
+
+function addBeatActions(){
+  const row = document.createElement('div');
+  row.className = 'beat-actions';
+  row.id = 'beat_actions';
+  const save = document.createElement('button');
+  save.className = 'ghost small';
+  save.id = 'save_card_btn';
+  save.textContent = 'save story card';
+  save.onclick = saveCard;
+  const retry = document.createElement('button');
+  retry.className = 'ghost small';
+  retry.textContent = 'not quite — try again';
+  retry.onclick = regenerateBeats;
+  row.appendChild(save); row.appendChild(retry);
+  const angles = document.createElement('button');
+  angles.className = 'ghost small';
+  angles.textContent = 'more angles';
+  angles.onclick = () => fetchAngles(angles);
+  row.appendChild(angles);
+  chat.appendChild(row); scrollDown();
+}
+
+function clearBeatActions(){
+  const a = document.getElementById('beat_actions');
+  if (a) a.remove();
+  const w = document.getElementById('beats_wrap');
+  if (w) w.remove();
+}
+
+function getCards(){
+  try { return JSON.parse(localStorage.getItem('anecdote_cards') || '[]'); }
+  catch(e) { return []; }
+}
+function setCards(cards){
+  localStorage.setItem('anecdote_cards', JSON.stringify(cards));
+  document.getElementById('cards_count').textContent = cards.length;
+}
+
+function saveCard(){
+  if (!lastBeats) return;
+  const cards = getCards();
+  cards.unshift({ topic: what, answer: lastAnswer, beats: lastBeats, ts: Date.now() });
+  setCards(cards);
+  const btn = document.getElementById('save_card_btn');
+  if (btn){ btn.textContent = 'saved ✓'; btn.disabled = true; }
+  sfxGrandFinale();
+  let bx = window.innerWidth / 2, by = window.innerHeight / 2;
+  if (btn){ const r = btn.getBoundingClientRect(); bx = r.left + r.width / 2; by = r.top + r.height / 2; }
+  fireworks(bx, by);
+}
+
+let libQuery = '';
+
+// Lowercased, accent-stripped text so "cafe" finds "café".
+const norm = t => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+function cardMatches(c, terms){
+  if (!terms.length) return true;
+  const hay = norm([c.topic, c.answer].concat((c.beats || []).map(b => b.tag + ' ' + b.text)).join(' '));
+  return terms.every(t => hay.includes(t));   // every word must appear somewhere on the card
+}
+
+// Append text to el, wrapping any search-term hits in <mark> (textContent only, no innerHTML).
+function setHighlighted(el, text, terms){
+  text = String(text || '');
+  el.textContent = '';
+  if (!terms.length){ el.textContent = text; return; }
+  const n = norm(text);
+  // norm() can change length on odd characters; fall back to plain text if it did
+  if (n.length !== text.length){ el.textContent = text; return; }
+  const spans = [];
+  terms.forEach(t => {
+    for (let i = n.indexOf(t); i !== -1; i = n.indexOf(t, i + t.length)) spans.push([i, i + t.length]);
+  });
+  spans.sort((a, b) => a[0] - b[0]);
+  let pos = 0;
+  spans.forEach(([a, b]) => {
+    if (b <= pos) return;
+    a = Math.max(a, pos);
+    if (a > pos) el.appendChild(document.createTextNode(text.slice(pos, a)));
+    const m = document.createElement('mark');
+    m.textContent = text.slice(a, b);
+    el.appendChild(m);
+    pos = b;
+  });
+  if (pos < text.length) el.appendChild(document.createTextNode(text.slice(pos)));
+}
+
+function renderLibrary(){
+  const lib = document.getElementById('library');
+  const cards = getCards();
+  const keepFocus = document.activeElement && document.activeElement.id === 'lib_search';
+  lib.innerHTML = '';
+  if (!cards.length){
+    const d = document.createElement('div');
+    d.className = 'status';
+    d.textContent = 'no saved cards yet — save one after your next run.';
+    lib.appendChild(d);
+    return;
+  }
+
+  const search = document.createElement('input');
+  search.id = 'lib_search';
+  search.className = 'lib-search';
+  search.type = 'search';
+  search.placeholder = 'search your cards…';
+  search.autocomplete = 'off';
+  search.value = libQuery;
+  search.addEventListener('input', () => { libQuery = search.value; renderLibrary(); });
+  lib.appendChild(search);
+
+  const terms = norm(libQuery).split(/\s+/).filter(Boolean);
+  // keep each card's real index so delete still removes the right one while filtered
+  const shown = cards.map((c, i) => ({c, i})).filter(({c}) => cardMatches(c, terms));
+
+  if (terms.length){
+    const cnt = document.createElement('div');
+    cnt.className = 'lib-count';
+    cnt.textContent = shown.length + ' of ' + cards.length + ' cards';
+    lib.appendChild(cnt);
+  }
+  if (!shown.length){
+    const d = document.createElement('div');
+    d.className = 'status';
+    d.textContent = 'no cards match "' + libQuery.trim() + '".';
+    lib.appendChild(d);
+  }
+
+  shown.forEach(({c, i}) => {
+    const card = document.createElement('div');
+    card.className = 'saved-card';
+    const head = document.createElement('div');
+    head.className = 'saved-head';
+    const title = document.createElement('strong');
+    setHighlighted(title, c.topic, terms);
+    const date = document.createElement('span');
+    date.className = 'saved-date';
+    date.textContent = new Date(c.ts).toLocaleDateString();
+    const del = document.createElement('button');
+    del.className = 'ghost small';
+    del.textContent = 'delete';
+    del.onclick = () => { const cs = getCards(); cs.splice(i, 1); setCards(cs); renderLibrary(); };
+    head.appendChild(title); head.appendChild(date); head.appendChild(del);
+    card.appendChild(head);
+    (c.beats || []).filter(b => b.tag !== 'angle').forEach(b => {
+      const bd = document.createElement('div');
+      bd.className = 'beat';
+      appendTag(bd, b.tag);
+      const txt = document.createElement('div');
+      txt.className = 'txt'; setHighlighted(txt, b.text, terms);
+      bd.appendChild(txt);
+      card.appendChild(bd);
+    });
+    const angles = (c.beats || []).filter(b => b.tag === 'angle');
+    if (angles.length){
+      const h = document.createElement('div');
+      h.className = 'angles-head'; h.textContent = 'other angles';
+      card.appendChild(h);
+      angles.forEach(a => {
+        const ad = document.createElement('div');
+        ad.className = 'angle'; setHighlighted(ad, a.text, terms);
+        card.appendChild(ad);
+      });
+    }
+    lib.appendChild(card);
+  });
+
+  if (keepFocus){
+    search.focus();
+    search.setSelectionRange(search.value.length, search.value.length);
+  }
+}
+
+async function regenerateBeats(){
+  if (!lastBeats || stage !== 'beats') return;
+  clearBeatActions();
+  addTyping();
+  const t0 = Date.now();
+  try {
+    const beats = await post({action: 'regenerate', what, answer: lastAnswer, previous: JSON.stringify(lastBeats)});
+    removeTyping();
+    if (validBeats(beats)){
+      lastBeats = beats;
+      addMsg('bot', 'okay, fresh take:');
+      addBeats(beats);
+      addBeatActions();
+      setStage('beats');
+    } else {
+      addStatus("Couldn't come up with a new angle — try adding a bit more detail?");
+      addBeats(lastBeats);
+      addBeatActions();
+    }
+  } catch(e){
+    removeTyping();
+    if (e.message === 'auth') return;
+    reportClientError('regenerate', e, Date.now() - t0);
+    addStatus(e.message === 'slow'
+      ? "Whoa, slow down a little — try again in a bit."
+      : "Something went wrong generating that. Try again?");
+    addBeats(lastBeats);
+    addBeatActions();
+  }
+}
+
+sendBtn.addEventListener('click', () => {
+  if (stage === 'ask-what') sendWhat(inp.value);
+  else if (stage === 'ask-detail') sendAnswer(inp.value);
+});
+inp.addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ e.preventDefault(); sendBtn.click(); }
+});
+skipBtn.addEventListener('click', () => sendAnswer(null));
+restartBtn.addEventListener('click', () => {
+  chat.innerHTML = '';
+  what = '';
+  lastAnswer = '';
+  lastBeats = null;
+  beatsWrap = null;
+  setStage('ask-what');
+  addMsg('bot', pickOpener(), 'greet');
+  inp.focus();
+});
+
+// feedback inbox: quiet link under the chat -> expanding form -> thanks.
+// Notes POST to /feedback (same password gate); the worker stores them in KV.
+const fbLink = document.getElementById('fb_link');
+const fbForm = document.getElementById('fb_form');
+const fbText = document.getElementById('fb_text');
+const fbSend = document.getElementById('fb_send');
+const fbOk = document.getElementById('fb_ok');
+function fbReset(){
+  fbForm.classList.add('hidden');
+  fbOk.classList.add('hidden');
+  fbLink.classList.remove('hidden');
+  fbText.value = '';
+  fbSend.disabled = false;
+  fbSend.textContent = 'send feedback';
+}
+fbLink.addEventListener('click', () => {
+  const opening = fbForm.classList.contains('hidden');
+  fbForm.classList.toggle('hidden');
+  if (opening) fbText.focus();
+});
+fbSend.addEventListener('click', async () => {
+  const text = fbText.value.trim();
+  if (!text){ fbText.focus(); return; }
+  fbSend.disabled = true;
+  try {
+    const resp = await fetch('/feedback', {
+      method: 'POST',
+      headers: {'content-type': 'application/json', 'x-app-password': getPw()},
+      body: JSON.stringify({ text })
+    });
+    if (resp.status === 401){ lockApp("hmm, that password didn't work — try again?"); return; }
+    if (!resp.ok) throw new Error('bad ' + resp.status);
+    fbForm.classList.add('hidden');
+    fbLink.classList.add('hidden');
+    fbOk.classList.remove('hidden');
+    setTimeout(fbReset, 5000);
+  } catch(e) {
+    fbSend.disabled = false;
+    fbSend.textContent = "couldn't send — try again";
+    setTimeout(() => { fbSend.textContent = 'send feedback'; }, 2500);
+  }
+});
+
+// init
+document.getElementById('cards_count').textContent = getCards().length;
+document.getElementById('cards_toggle').addEventListener('click', () => {
+  const lib = document.getElementById('library');
+  const showing = lib.classList.toggle('hidden');
+  if (!showing) renderLibrary();
+  lib.scrollIntoView({block: 'nearest'});
+});
+enterApp();
+</script>
+<script>
+// first-party visit stats: one pageview ping per load, plus a visible-seconds
+// heartbeat every minute while the tab is in front. no cookies, no third
+// parties, IPs stored as one-way hashes. honors the "don't count this device"
+// switch (localStorage anecdote_dnt) and the browser Do Not Track setting.
+(function(){
+  try {
+    if (localStorage.getItem('anecdote_dnt') === '1') return;
+    if (navigator.doNotTrack === '1') return;
+    var page = location.pathname.replace(/\/$/, '') || '/';
+    var post = function(payload){
+      fetch('/ping', {method:'POST', headers:{'content-type':'application/json'},
+        body: JSON.stringify(payload)}).catch(function(){});
+    };
+    post({t:'pv', page: page});
+    var acc = 0, last = Date.now();
+    setInterval(function(){
+      var now = Date.now();
+      if (document.hidden) { last = now; return; }
+      acc += Math.round((now - last) / 1000); last = now;
+      if (acc >= 60) { var s = acc; acc = 0; post({t:'hb', page: page, secs: s}); }
+    }, 15000);
+    window.addEventListener('beforeunload', function(){
+      if (acc > 5 && navigator.sendBeacon) {
+        try { navigator.sendBeacon('/ping', JSON.stringify({t:'hb', page: page, secs: acc})); } catch(e){}
+      }
+    });
+  } catch(e){}
+})();
+</script>
+</body>
+</html>

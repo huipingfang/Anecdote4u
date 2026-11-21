@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>stats · anecdote</title>
+<style>
+:root{
+  --bg:#faf7f2; --card:#fff; --ink:#2b2621; --muted:#7a7168;
+  --accent:#c1622e; --line:#e8e0d5;
+  box-sizing:border-box;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  padding:20px 16px}
+.wrap{max-width:640px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+h1{font-family:Georgia,"Times New Roman",serif;font-weight:600;font-size:1.5rem;margin:4px 0 2px}
+h1 .dot{color:var(--accent)}
+.sub{color:var(--muted);font-size:.9rem;margin-bottom:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+.row{display:flex;gap:8px}
+input{flex:1;border:1px solid var(--line);border-radius:24px;padding:12px 18px;
+  font-size:.95rem;font-family:inherit;background:#fff;color:var(--ink)}
+input:focus{outline:2px solid var(--accent);outline-offset:-1px}
+button.go{background:var(--accent);color:#fff;border:none;border-radius:24px;
+  padding:12px 22px;font-size:.95rem;font-weight:600;cursor:pointer;font-family:inherit}
+button.linklike{background:none;border:none;color:var(--accent);font-size:.88rem;
+  text-decoration:underline;cursor:pointer;font-family:inherit;padding:0}
+.err{color:#b3261e;font-size:.85rem;min-height:1.2em;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:6px}
+th,td{text-align:right;padding:8px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted);font-weight:600;font-size:.78rem}
+tr.today td{font-weight:700}
+.note{color:var(--muted);font-size:.78rem;line-height:1.5;margin-top:14px}
+.dnt{margin-top:14px;display:flex;align-items:center;gap:10px;font-size:.88rem}
+.dnt .pill{border:1px solid var(--line);border-radius:14px;padding:4px 12px;font-size:.78rem;font-weight:600}
+.dnt .pill.on{background:#e7f2e4;border-color:#9cc184;color:#2f6b2f}
+.dnt .pill.off{background:#fbeae6;border-color:#d8a08e;color:#96421f}
+.hidden{display:none}
+.empty{color:var(--muted);font-size:.9rem;text-align:center;padding:24px 0}
+.tagchip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);
+  border-radius:16px;padding:6px 8px 6px 14px;font-size:.85rem;background:var(--bg)}
+.tagchip button{background:none;border:none;color:var(--muted);cursor:pointer;
+  font-size:.95rem;line-height:1;padding:2px 6px;font-family:inherit}
+.tagchip button:hover{color:#b3261e}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Anecdote<span class="dot">.</span> <span style="font-size:1rem;color:var(--muted)">stats</span></h1>
+  <div class="sub">private — only you can open this page.</div>
+
+  <div class="card hidden" id="gate">
+    <div class="row">
+      <input type="password" id="pw_inp" placeholder="enter the password" autocomplete="off">
+      <button class="go" id="pw_go">go</button>
+    </div>
+    <div class="err" id="pw_err"></div>
+    <div class="note">use your master password here — the per-person ones can't open this page.</div>
+  </div>
+
+  <div class="card hidden" id="stats_card">
+    <div style="font-weight:700;margin-bottom:4px">who's been in <span style="font-weight:400;color:var(--muted);font-size:.78rem">last 30 days</span></div>
+    <table id="ppl_tbl">
+      <thead><tr><th>who</th><th>topics</th><th>visitors</th></tr></thead>
+      <tbody id="ppl_body"></tbody>
+    </table>
+    <div class="empty hidden" id="ppl_empty">nobody's gotten in with a password yet.</div>
+
+    <div style="font-weight:700;margin:18px 0 8px">passwords</div>
+    <div class="row" style="margin-bottom:10px">
+      <input type="text" id="np_label" placeholder="name, e.g. alex" autocomplete="off" style="flex:1">
+      <input type="text" id="np_pw" placeholder="password, e.g. alex" autocomplete="off" autocapitalize="none" style="flex:1">
+      <button class="go" id="np_go">add</button>
+    </div>
+    <div class="err" id="np_err"></div>
+    <div style="font-weight:700;margin:18px 0 4px">password requests <span id="rq_count" style="font-weight:400;color:var(--muted);font-size:.78rem"></span></div>
+    <div class="empty" id="rq_empty">no pending requests.</div>
+    <div id="rq_list" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div id="pw_labels" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px"></div>
+
+    <div style="font-weight:700;margin:18px 0 4px">by day</div>
+    <table id="stats_tbl">
+      <thead><tr>
+        <th>day</th><th>page views</th><th>topics</th><th>people in</th><th>avg time</th><th>bad pw</th>
+      </tr></thead>
+      <tbody id="stats_body"></tbody>
+    </table>
+    <div class="empty hidden" id="stats_empty">no visits recorded yet — check back after someone stops by.</div>
+    <div style="font-weight:700;margin:18px 0 4px">recent errors <span style="font-weight:400;color:var(--muted);font-size:.78rem">last 20 generation failures</span></div>
+    <div class="empty" id="errors_empty">none — generations are healthy.</div>
+    <table id="errors_tbl" class="hidden">
+      <thead><tr><th>when</th><th>step</th><th>error</th></tr></thead>
+      <tbody id="errors_body"></tbody>
+    </table>
+    <div class="dnt">
+      <span>this device:</span>
+      <span class="pill off" id="dnt_pill">counted</span>
+      <button class="linklike" id="dnt_toggle">don't count this device</button>
+    </div>
+    <div class="note">
+      topics = full runs through the flow — the number you'd intuitively expect.
+      (one topic loads 2 pages and makes 2 password-checked calls, so page views
+      always reads a bit higher.) people in = distinct visitors who got in that
+      day, by IP hash — two people on the same wifi look like one. avg time =
+      visible seconds on the site per visitor.
+      per-person passwords are counted under their name above; the master password
+      shows as Huiping. your own testing is excluded once you flip the switch above
+      on each of your devices. IPs are stored as one-way hashes, never raw.
+      no cookies, no third parties.
+    </div>
+  </div>
+</div>
+
+<script>
+var PW_KEY = 'anecdote_stats_pw';
+function fmtSecs(s){
+  s = Math.round(s || 0);
+  var m = Math.floor(s / 60), r = s % 60;
+  return m + ':' + (r < 10 ? '0' : '') + r;
+}
+function dntOn(){
+  try { return localStorage.getItem('anecdote_dnt') === '1'; } catch(e){ return false; }
+}
+function renderDnt(){
+  var on = dntOn();
+  var pill = document.getElementById('dnt_pill');
+  pill.textContent = on ? 'not counted' : 'counted';
+  pill.className = 'pill ' + (on ? 'on' : 'off');
+  document.getElementById('dnt_toggle').textContent = on ? 'count this device again' : "don't count this device";
+}
+document.getElementById('dnt_toggle').addEventListener('click', function(){
+  try {
+    if (dntOn()) localStorage.removeItem('anecdote_dnt');
+    else localStorage.setItem('anecdote_dnt', '1');
+  } catch(e){}
+  renderDnt();
+});
+
+async function api(path, pw, method, body){
+  var opts = {method: method || 'GET', headers: {'x-app-password': pw}};
+  if (body){ opts.headers['content-type'] = 'application/json'; opts.body = JSON.stringify(body); }
+  var resp = await fetch(path, opts);
+  if (resp.status === 401) throw new Error('auth');
+  var data = null;
+  try { data = await resp.json(); } catch(e){}
+  if (!resp.ok) throw new Error((data && data.error) || ('bad ' + resp.status));
+  return data || {};
+}
+async function load(pw){
+  var s = await api('/stats', pw);
+  var l = await api('/pw-list', pw);
+  var q = {requests: []};
+  try { q = await api('/requests-list', pw); } catch(e){ if (e.message === 'auth') throw e; }
+  return {days: s.days || [], people: s.people || [], labels: l.labels || [], requests: q.requests || [], errors: s.errors};
+}
+function renderDays(days){
+  var body = document.getElementById('stats_body');
+  body.innerHTML = '';
+  var rows = days.filter(function(d){
+    return d.pageviews || d.pw_uses || d.people_in || d.bad_pw;
+  });
+  document.getElementById('stats_empty').classList.toggle('hidden', rows.length > 0);
+  var today = new Date().toISOString().slice(0, 10);
+  rows.forEach(function(d){
+    var tr = document.createElement('tr');
+    if (d.date === today) tr.className = 'today';
+    tr.innerHTML = '<td>' + d.date.slice(5) + '</td><td>' + d.pageviews + '</td><td>' +
+      d.topics + '</td><td>' + d.people_in + '</td><td>' + fmtSecs(d.avg_secs) +
+      '</td><td>' + d.bad_pw + '</td>';
+    body.appendChild(tr);
+  });
+}
+function renderPeople(people){
+  var body = document.getElementById('ppl_body');
+  body.innerHTML = '';
+  document.getElementById('ppl_empty').classList.toggle('hidden', people.length > 0);
+  people.forEach(function(p){
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + escapeHtml(p.label) + '</td><td>' + p.topics +
+      '</td><td>' + p.visitors + '</td>';
+    body.appendChild(tr);
+  });
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function renderRequests(reqs){
+  var box = document.getElementById('rq_list');
+  box.innerHTML = '';
+  document.getElementById('rq_empty').classList.toggle('hidden', reqs.length > 0);
+  document.getElementById('rq_count').textContent = reqs.length ? '(' + reqs.length + ')' : '';
+  var pw = null;
+  try { pw = sessionStorage.getItem(PW_KEY); } catch(e){}
+  reqs.slice().reverse().forEach(function(r){
+    var row = document.createElement('div');
+    row.style.cssText = 'border:1px solid var(--line);border-radius:12px;padding:8px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap';
+    var info = document.createElement('div');
+    info.style.cssText = 'flex:1;min-width:180px;font-size:.88rem';
+    var t = document.createElement('strong'); t.textContent = r.name;
+    var c = document.createElement('div'); c.textContent = r.contact;
+    info.appendChild(t); info.appendChild(c);
+    if (r.note){ var n = document.createElement('div'); n.style.color = 'var(--muted)'; n.textContent = r.note; info.appendChild(n); }
+    var ok = document.createElement('button');
+    ok.className = 'go'; ok.textContent = 'approve';
+    ok.title = 'fills the add form — pick a password, add it, then send it to them';
+    ok.addEventListener('click', function(){
+      document.getElementById('np_label').value = r.name.toLowerCase();
+      document.getElementById('np_pw').focus();
+      document.getElementById('np_err').textContent = 'pick a password, hit add, then send it to ' + r.contact + '.';
+    });
+    var no = document.createElement('button');
+    no.className = 'go'; no.textContent = 'dismiss';
+    no.addEventListener('click', async function(){
+      try { await api('/request-del', pw, 'POST', {id: r.id}); refresh(pw); } catch(e){}
+    });
+    row.appendChild(info); row.appendChild(ok); row.appendChild(no);
+    box.appendChild(row);
+  });
+}
+function renderLabels(labels){
+  var box = document.getElementById('pw_labels');
+  box.innerHTML = '';
+  var pw = null;
+  try { pw = sessionStorage.getItem(PW_KEY); } catch(e){}
+  labels.forEach(function(label){
+    var chip = document.createElement('span');
+    chip.className = 'tagchip';
+    chip.innerHTML = '<span></span>';
+    chip.firstChild.textContent = label;
+    var x = document.createElement('button');
+    x.textContent = '×';
+    x.title = 'revoke ' + label + '’s password';
+    x.addEventListener('click', async function(){
+      if (!confirm('Revoke ' + label + '’s password?')) return;
+      try {
+        await api('/pw-del', pw, 'POST', {label: label});
+        refresh(pw);
+      } catch(e){ alert(e.message === 'auth' ? 'session expired — reload and try again.' : e.message); }
+    });
+    chip.appendChild(x);
+    box.appendChild(chip);
+  });
+  if (!labels.length){
+    box.innerHTML = '<span style="color:var(--muted);font-size:.85rem">no per-person passwords yet.</span>';
+  }
+}
+function renderErrors(errors){
+  var body = document.getElementById('errors_body');
+  body.innerHTML = '';
+  document.getElementById('errors_empty').classList.toggle('hidden', errors.length > 0);
+  document.getElementById('errors_tbl').classList.toggle('hidden', errors.length === 0);
+  errors.forEach(function(e){
+    var tr = document.createElement('tr');
+    var when = new Date(e.t);
+    var hh = String(when.getHours()).padStart(2, '0'), mm = String(when.getMinutes()).padStart(2, '0');
+    tr.innerHTML = '<td>' + (when.getMonth()+1) + '/' + when.getDate() + ' ' + hh + ':' + mm +
+      '</td><td>' + escapeHtml(e.action) + '</td><td>' + escapeHtml(e.message) + '</td>';
+    body.appendChild(tr);
+  });
+}
+async function refresh(pw){
+  var data = await load(pw);
+  renderDays(data.days);
+  renderPeople(data.people);
+  renderLabels(data.labels);
+  renderRequests(data.requests);
+  renderErrors(data.errors || []);
+}
+async function unlock(pw){
+  var err = document.getElementById('pw_err');
+  err.textContent = '';
+  try {
+    await refresh(pw);
+    try { sessionStorage.setItem(PW_KEY, pw); } catch(e){}
+    document.getElementById('gate').classList.add('hidden');
+    document.getElementById('stats_card').classList.remove('hidden');
+    renderDnt();
+  } catch(e) {
+    err.textContent = e.message === 'auth' ? "hmm, that password didn't work — try again?" : e.message;
+  }
+}
+document.getElementById('pw_go').addEventListener('click', function(){
+  var v = document.getElementById('pw_inp').value.trim();
+  if (!v){ document.getElementById('pw_err').textContent = 'type the password first'; return; }
+  unlock(v);
+});
+document.getElementById('pw_inp').addEventListener('keydown', function(e){
+  if (e.key === 'Enter'){ e.preventDefault(); document.getElementById('pw_go').click(); }
+});
+document.getElementById('np_go').addEventListener('click', async function(){
+  var err = document.getElementById('np_err');
+  err.textContent = '';
+  var label = document.getElementById('np_label').value.trim();
+  var password = document.getElementById('np_pw').value.trim();
+  if (!label || !password){ err.textContent = 'name and password, both.'; return; }
+  var pw = null;
+  try { pw = sessionStorage.getItem(PW_KEY); } catch(e){}
+  try {
+    await api('/pw-add', pw, 'POST', {label: label, password: password});
+    document.getElementById('np_label').value = '';
+    document.getElementById('np_pw').value = '';
+    refresh(pw);
+  } catch(e){
+    err.textContent = e.message === 'auth' ? 'session expired — reload and try again.' : e.message;
+  }
+});
+(function(){
+  var saved = null;
+  try { saved = sessionStorage.getItem(PW_KEY); } catch(e){}
+  if (saved) unlock(saved);
+  else {
+    document.getElementById('gate').classList.remove('hidden');
+    document.getElementById('pw_inp').focus();
+  }
+})();
+</script>
+</body>
+</html>

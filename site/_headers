@@ -1,0 +1,6 @@
+# Don't let browsers cache stale HTML — the app is updated often and
+# testers need the latest version immediately.
+/*.html
+  Cache-Control: no-cache, must-revalidate
+/
+  Cache-Control: no-cache, must-revalidate
